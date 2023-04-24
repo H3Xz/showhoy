@@ -1364,6 +1364,7 @@
                                                         </option>"; ?><br><?php
                                                     }
                                                 }
+                                                //ss
                                             }
                                             else{                                                               // ตรวจเลขที่เป็นวันหลัก10
                                                 $valueaDay[$i] = $values[$i][32].$values[$i][33];
