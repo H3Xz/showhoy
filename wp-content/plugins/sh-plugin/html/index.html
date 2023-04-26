@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Houy</title>
+</head>
+<body>
+    <div id="section1">
+        <a href="#!" class="btn" onclick="get_dmy_now()">Show</a>
+    </div>
+</body>
+<script type="text/javascript">
+    function get_dmy_now(){
+        fetch("https://thai-lottery1.p.rapidapi.com/gdpy?year=2566", {
+            'method': 'GET',
+            'headers': {
+                'content-type': 'application/octet-stream',
+                'X-RapidAPI-Key': 'be72945233msha7f60a56f8df87ep18f7bcjsn366b4116954e',
+                'X-RapidAPI-Host': 'thai-lottery1.p.rapidapi.com'
+            }
+        })
+        .then(response => {
+            console.log(response);
+        })
+        .catch(err => {
+            console.error(err);
+        });
+    }
+</script>
+</html>
