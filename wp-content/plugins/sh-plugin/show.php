@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="th">
     <head>
+            <?php 
+                    $xml = simplexml_load_file('https://www.lottery.co.th/feed');
+                    $value = (string) $xml->channel->item[0]->title;
+            ?>
     </head>
 
     <?php
-        function thai_lottery_table_shortcode() {
-            
+        function thai_lottery_table_shortcode($yearNow) {
 
             $curl = curl_init();
         
             curl_setopt_array($curl, [
-                CURLOPT_URL => "https://thai-lottery1.p.rapidapi.com/gdpy?year=2564",
+                //CURLOPT_URL => "https://thai-lottery1.p.rapidapi.com/gdpy?year=2564",
+                CURLOPT_URL => "https://thai-lottery1.p.rapidapi.com/gdpy?year=$yearNow",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING => "",
                 CURLOPT_MAXREDIRS => 10,
@@ -36,19 +40,7 @@
                 if (is_array($data)) {
                     // ถ้า $data เป็น array ให้ทำการ loop และสร้าง HTML ตาราง
                     $html = '<table><thead><tr><th>วันที่</th><th>รางวัลที่ 1</th><th>รางวัลเลขท้าย 2 ตัว</th></tr></thead><tbody>';
-                    //echo $html;
-                    // var_dump($data);
-            //    foreach($data as $result){
-            //         echo $result."</br>";
-            //    }
-                // foreach ($data as $result) {
-                //     $date = date('d/m/Y', strtotime($result['date']));
-                //     $first_prize = implode(', ', $result['first_prize']);
-                //     $last_two_digits = implode(', ', $result['last_two_digits']);
-                //     $html .= "<tr><td>$date</td><td>$first_prize</td><td>$last_two_digits</td></tr>";
-                // }
-                //$html .= '</tbody></table>';
-                //return $html;
+                    
                 return $data;
                 } else {
                     // ถ้า $data ไม่ใช่ array ให้ส่ง error message กลับไปแสดงผล
@@ -56,18 +48,7 @@
                 }
 
                 $html = '<table><thead><tr><th>วันที่</th><th>รางวัลที่ 1</th><th>รางวัลเลขท้าย 2 ตัว</th></tr></thead><tbody>';
-               // var_dump($data);
-            //    foreach($data as $result){
-            //         echo $result."</br>";
-            //    }
-                // foreach ($data as $result) {
-                //     $date = date('d/m/Y', strtotime($result['date']));
-                //     $first_prize = implode(', ', $result['first_prize']);
-                //     $last_two_digits = implode(', ', $result['last_two_digits']);
-                //     $html .= "<tr><td>$date</td><td>$first_prize</td><td>$last_two_digits</td></tr>";
-                // }
-                // $html .= '</tbody></table>';
-                // return $html;
+                
             }
             return $data;
         }
@@ -79,25 +60,32 @@
         <div id="page" class="hfeed site">
             <div id="main" class="clearfix">
                 <?php
-                            date_default_timezone_set('asia/bangkok');                  
-                            $year = date('d-m-Y');
-                            $yearNow = $year[6].$year[7].$year[8].$year[9];
-                            $yearNow = intval($yearNow)+543;                        //get yearNow
-                            //echo $yearNow;                                          
+                    date_default_timezone_set('asia/bangkok');                  
+                    $year = date('Y'); // 2023
+                    $yearNow = intval($year)+543;                        //get yearNow yearThai
+                   // echo $yearNow;                                          
 
-                            $responseYear = array();
-                            $responseYears = array();
-                            $responseYear = thai_lottery_table_shortcode();
-                            //var_dump($responseYear);
-                            //print_r($response);
-                            foreach ($responseYear as $responseYears) {
-                                $responseYears = $responseYear;
-                            }
-                            //echo count($responseYears); ?><br><?php
-                            $responseYearNow = $responseYears[0][4].$responseYears[0][5].$responseYears[0][6].$responseYears[0][7];
+                    $responseYear = array();
+                    $responseYears = array();
+                    
+                    for($i=$yearNow;$i>2540;$i--){
+                        $responseYear[$i] = thai_lottery_table_shortcode($i);
+                       // var_dump($responseYear[$i])
+                        //$responseYears[$i] = implode(',', $responseYear[$i]);
+                        for($j=count($responseYear[$i])-1;$j>=0;$j--){
+                            
+                            $rpDay[$i][$j] = substr($responseYear[$i][$j],0,2); 
+                            $rpMonth[$i][$j] = substr($responseYear[$i][$j],2,2); 
+                            // echo $rpDay[$i][$j];
+                            // echo '   ';
+                            // echo $rpMonth[$i][$j];
+                            // echo "<br>";
+                        }
+                        // echo "<br>";
+                        //echo $yearNow;
+                    }    
                 ?>
                     <table class="table table-hover text-nowrap" id="attribute_table">
-                        <section id="custom_html-6" class="widget_text widget widget_custom_html clearfix">
                             <h3 class="widget-title">
                                 <thead>
                                     <tr>
@@ -105,77 +93,54 @@
                                         <th>วัน / เดือน</th>
                                     </tr>
                                 </thead>
-                                <tr>
+
+                                <tr id="row1">
                                     <td>
                                         <select id="year" name="year" class="form-control-year">
                                             <?php
-                                                    echo "<option value=''>ปี</option>";
-                                                    // Generate options for year dropdown
-                                                    for ($i = intval($yearNow); $i > 2540; $i--) {                           //หาค่าปีแล้วดึงมาใส่ซะ
-                                                        if($i == intval($yearNow)){
-                                                            $j = $i - 543;
-                                                            echo "<option value='$j' selected>$i</option>";
-                                                        }
-                                                        else if($i != intval($yearNow)){
-                                                            $j = $i - 543;
-                                                            echo "<option value='$j'>$i</option>";
-                                                        }
+                                                echo "<option value=''>ปี</option>";
+                                                // Generate options for year dropdown
+                                                for ($i = $yearNow; $i > 2540; $i--) {                           //หาค่าปีแล้วดึงมาใส่ซะ
+                                                    if($i == $yearNow){
+                                                        //$j = $i - 543;
+                                                        echo "<option value='$i' selected>$i</option>";
                                                     }
-                                                    ?>
+                                                    else if($i != intval($yearNow)){
+                                                        //$j = $i - 543;
+                                                        echo "<option value='$i'>$i</option>";
+                                                    }
+                                                }
+                                            ?>
                                         </select>
                                     </td>
                                     <?php
                                         $monthTh = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-                                                        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                                                    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+                                        //echo count($responseYears);
+                                        //echo $responseYears[0];
                                     ?>
                                     <td>
                                         <select name="day" id="day_value" class="form-control-day-value">
                                             <?php 
                                                 echo "<option value=''>วัน / เดือน</option>";
-                                                for($j=0;$j<$yearNow-2550;$j++){                                  // value year
-                                                    for($i=0;$i<count($values);$i++){                                   // all value
-                                                        
-                                                            if(($values[$i][33] == '-') ){                                      // ตรวจเลขที่เป็นวันหลักหน่วย
-                                                                $valueaDay[$i] = '0'.$values[$i][32];
-                                                                $valueaMonth[$i] = $values[$i][34].$values[$i][35];
-                                                                $valueaYear[$i] = '25'.$values[$i][37].$values[$i][38];
-                                                                $thismonth = intval($valueaMonth[$i]-1);
-                                                                $yearNow = $valueaYear[$i]-543-$j;                              //year eng
-                                                                if($yearNow==$valueaYear[$i]-543){    
-                                                                    $valueaDay[$i]='0'.$values[$i][32];
 
-                                                                    if(($valueaYear[$i]==$valueaYear[0]) && ($valueaMonth[$i]==$valueaMonth[0]) && ($valueaDay[$i]==$valueaDay[0])){
-                                                                        echo "<option data-parent='$yearNow' value='$valueaDay[$i],$valueaMonth[$i]' selected>
-                                                                        $valueaDay[$i]".' / '."$monthTh[$thismonth]
-                                                                        </option>"; ?><br><?php
-                                                                    }
-                                                                    else{
-                                                                        echo "<option data-parent='$yearNow' value='$valueaDay[$i],$valueaMonth[$i]'>
-                                                                        $valueaDay[$i]".' / '."$monthTh[$thismonth]
-                                                                        </option>"; ?><br><?php
-                                                                    }
-                                                                }
-                                                                //ss
-                                                            }
-                                                            else{                                                               // ตรวจเลขที่เป็นวันหลัก10
-                                                                $valueaDay[$i] = $values[$i][32].$values[$i][33];
-                                                                $valueaMonth[$i] = $values[$i][35].$values[$i][36];
-                                                                $valueaYear[$i] = '25'.$values[$i][38].$values[$i][39];
-                                                                $thismonth = intval($valueaMonth[$i]-1);
-                                                                $yearNow = $valueaYear[$i]-543-$j;
-                                                                if($yearNow==$valueaYear[$i]-543){ 
-                                                                    if(($valueaYear[$i]==$valueaYear[0]) && ($valueaMonth[$i]==$valueaMonth[0]) && ($valueaDay[$i]==$valueaDay[0]) ){
-                                                                        echo "<option data-parent='$yearNow' value='$valueaDay[$i],$valueaMonth[$i]' selected>
-                                                                        $valueaDay[$i]".' / '."$monthTh[$thismonth]
-                                                                        </option>"; ?><br><?php
-                                                                    }
-                                                                    else{
-                                                                        echo "<option data-parent='$yearNow' value='$valueaDay[$i],$valueaMonth[$i]'>
-                                                                        $valueaDay[$i]".' / '."$monthTh[$thismonth]
-                                                                        </option>"; ?><br><?php
-                                                                    }
-                                                                }
-                                                            }
+                                                for($i=$yearNow;$i>2540;$i--){                                             // value year
+                                                    for($j=count($responseYear[$i])-1;$j>=0;$j--){   
+                                                        $rpDay[$i][$j] = substr($responseYear[$i][$j],0,2); 
+                                                        $rpADay = $rpDay[$i][$j];
+                                                        $rpMonth[$i][$j] = substr($responseYear[$i][$j],2,2);
+                                                        $rpMonthInt = intval( $rpMonth[$i][$j]) - 1;
+
+                                                        if(($i==$yearNow) && ($j==count($responseYear[$i])-1)){
+                                                            echo "<option data-parent='$i' value='$rpADay,$rpMonthInt' selected>
+                                                            $rpADay".' / '."$monthTh[$rpMonthInt]
+                                                        </option>"; ?><br><?php
+                                                        }
+                                                        else{
+                                                            echo "<option data-parent='$i' value='$rpADay,$rpMonthInt'>
+                                                            $rpADay".' / '."$monthTh[$rpMonthInt]
+                                                        </option>"; ?><br><?php
+                                                        }
                                                             
                                                     }    
                                                 }
@@ -183,14 +148,7 @@
                                         </select>
                                     </td>
                                 </tr>
-                                        <?php
-                                            $monthTh = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
-                                                            "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-                                        ?>
-
-</tr>
-
-                                    </h3>
+                            </h3>
                                     <div class="textwidget custom-html-widget">
                                         <div class="entry-content">
                                             <div class="table-responsive">
@@ -488,81 +446,35 @@
                                             </div>
                                         </div>
                                     </div>
-                                </section>
-                            <div id='section1'>
-                                <a href="#" class="btn" onclick="get_dmy_now()">Click ME</a>
-                            </div>
-
                         
-                            
+                            <!-- <div id='section1'>
+                                <a href="#" class="btn" onclick="get_dmy_now()">Click ME</a>
+                            </div> -->
+                        
             </div>
         </div>
     </body>    
         <?php
             //thai_lottery_table_shortcode();
-        ?>
-        <script type = "text/javascript">
-            const url = 'https://thai-lottery1.p.rapidapi.com/gdpy?year=2564';
-            const options = {
-                method: 'GET',
-                headers: {
-                    'content-type': 'application/octet-stream',
-                    'X-RapidAPI-Key': 'be72945233msha7f60a56f8df87ep18f7bcjsn366b4116954e',
-                    'X-RapidAPI-Host': 'thai-lottery1.p.rapidapi.com'
-                }
-            };
-
-            try {
-                const response = await fetch(url, options);
-                const result = await response.text();
-                console.log(result);
-            } catch (error) {
-                console.error(error);
-            }
-        </script>
-
-        <script type = "text/javascript">
-            const url = 'https://thai-lottery1.p.rapidapi.com/gdpy?year=2564';
-            const options = {
-                method: 'GET',
-                headers: {
-                    'content-type': 'application/octet-stream',
-                    'X-RapidAPI-Key': 'be72945233msha7f60a56f8df87ep18f7bcjsn366b4116954e',
-                    'X-RapidAPI-Host': 'thai-lottery1.p.rapidapi.com'
-                }
-            };
-
-            try {
-                const response = await fetch(url, options);
-                const result = await response.text();
-                console.log(result);
-            } catch (error) {
-                console.error(error);
-            }
-        </script>
-
-        <script type = "text/javascript">
-            function get_dmy_now() {
-                fetch("https://thai-lottery1.p.rapidapi.com/gdpy?year=2566", {
-                    'method': 'GET'
-                    'headers': {
-                        'content-type': 'application/octet-stream',
-                        'X-RapidAPI-Key': 'be72945233msha7f60a56f8df87ep18f7bcjsn366b4116954e',
-                        'X-RapidAPI-Host': 'thai-lottery1.p.rapidapi.com'
-                    }
-                })
-                .then(response => response.json())
-                .then(result => result.data.hashtags.map())
-
-                .catch(err => {
-                    console.error(err);
-                })
-            }
-
-        </script>
+           // echo count($responseYears);
+      ?>
         
         <link rel="stylesheet" href="https://www.lottery.co.th/style.min2020.css" type="text/css"/>
-        
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <script>
+            $('#year').bind('change', function () {
+                var parent = $(this).val();
+                console.log(parent)
+                $('#day_value').children().each(function () {
+                    if ($(this).data('parent') != parent) {
+                        $(this).hide();
+                    } else
+                        $(this).show();
+                });
+            });
+        </script>
     
 </html>
 <!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me - Debug: cached@1681173548 -->

@@ -1035,7 +1035,7 @@
     </body>
 
     <?php
-                function lotterycurl( $day, $month, $year, $number ){
+                function lotterycurl_xml( $day, $month, $year, $number ){
                     //echo $day.$month.$year.$number;
                     
                         // API endpoint URL
@@ -1307,12 +1307,13 @@
                     $valueaYearNow = intval($valueaYear[0]);
             ?>
             <table class="table table-hover text-nowrap" id="attribute_table">
-                <thead>
-                    <tr>
-                        <th>ปี</th>
-                        <th>วัน / เดือน</th>
-                    </tr>
-                </thead>
+                <h3 class="widget-title">
+                    <thead>
+                        <tr>
+                            <th>ปี</th>
+                            <th>วัน / เดือน</th>
+                        </tr>
+                    </thead>
                 
                 <tr id="row1">
                     <td>
@@ -1392,6 +1393,7 @@
                         </select>
                     </td>
                 </tr>
+                </h3>
             </table>
         </div><br/>
                     <div class="form-group">
@@ -1413,7 +1415,7 @@
                 $number = $_POST['number'];
 
                 // Send data to API and get response
-                $response = lotterycurl($aday, $month, $year, $number);
+                $response = lotterycurl_xml($aday, $month, $year, $number);
                 $response = str_split($response);
                 $totalarr=0;
                 $string = array();
@@ -1460,78 +1462,18 @@
         ?>
     </form>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script>
-        function add_attribute_row() {
-            $rowno = $("#attribute_table tr").length;
-            $("#attribute_table tr:last").after("<tr id='row" + $rowno + "'>
-                <td>
-                    <select id="year" name="year" class="form-control year">
-                            <?php
-                            echo "<option value='$valueaYearNow+1' selected></option>";
-                            // Generate options for year dropdown
-                            for ($i = $valueaYearNow; $i > 2540; $i--) {
-                                if($i == $valueaYearNow){
-                                    $j = $i - 543;
-                                    echo "<option value='$j' selected>$i</option>";
-                                }
-                                else if($i != $valueaYearNow){
-                                    $j = $i - 543;
-                                    echo "<option value='$j'>$i</option>";
-                                }
-                            }
-                            ?>
-                    </select>
-                </td>
-                <td>
-                <select name="day" id="day_value" class="form-control day_value">
-                        <?php 
-                            //for($j=0;$j<$valueaYearNow-2550;$j++){                                // value year
-                                for($i=0;$i<count($values);$i++){                                   // all value
-                                    
-                                    $valueaDay[$i] = $values[$i][32].$values[$i][33];
-                                    $valueaMonth[$i] = $values[$i][35].$values[$i][36];
-                                    $valueaYear[$i] = '25'.$values[$i][38].$values[$i][39];
-                                    //$month[$i] = $valueaMonth[$i];
-                                    if($valueaYear[$i]=$valueaYear[0]-$j){
-                                    //echo "$thismonth";
-                                        if($values[$i][33] == '-'){
-                                            $thismonth = intval($valueaMonth[$i]-1);
-                                            $valueaYear[$i] = '25'.$values[$i][37].$values[$i][38];
-                                            $valueaDay[$i] = '0'.$values[$i][32];
-                                            $valueaMonth[$i] = $values[$i][34].$values[$i][35];
-                                            
-                                                echo "<option data-parent='$valueaYear[0]-2500' value='$valueaDay[$i],$valueaMonth[$i]'>
-                                                $valueaDay[$i]".' / '."$monthTh[$thismonth]
-                                                </option>"; ?><br><?php
-                                        }
-                                        else{
-                                            $thismonth = intval($valueaMonth[$i]-1);
-                                                echo "<option data-parent='$valueaYear[0]-2500' value='$valueaDay[$i],$valueaMonth[$i]'>
-                                                $valueaDay[$i]".' / '."$monthTh[$thismonth]
-                                                </option>"; ?><br><?php
-                                        }
-                                    }
-                                    else{
-                                        break;
-                                    }
-                                }  
-                        ?>
-                    </select>
-                </td>
-            </tr>");
-        }
-    </script>
-    <script>
-    $('#year').bind('change', function () {
-        var parent = $(this).val();
-        console.log(parent)
-        $('#day_value').children().each(function () {
-            if ($(this).data('parent') != parent) {
-                $(this).hide();
-            } else
-                $(this).show();
+        $('#year').bind('change', function () {
+            var parent = $(this).val();
+            console.log(parent)
+            $('#day_value').children().each(function () {
+                if ($(this).data('parent') != parent) {
+                    $(this).hide();
+                } else
+                    $(this).show();
+            });
         });
-    });
-</script>
+    </script>
 </html>
 
