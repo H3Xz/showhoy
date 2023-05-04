@@ -17,7 +17,6 @@
     <body>
 
     <?php
-        define("API_URL","http://51.159.105.201:5000/lotto/");
         define("GLO_URL","https://www.glo.or.th/api/checking/getcheckLotteryResult");
 
         function check_reward($data){
@@ -38,27 +37,6 @@
                 }
             }
             return "ระบบกำลังดำเนินการ";
-        }
-
-        function lotterycurl( $day, $month, $year, $number ){
-                // API endpoint URL
-                $url = API_URL.$year.'-'.$month.'-'.$day.'/'.$number;
-
-                $options = array(
-                    'http' => array(
-                        'header' => "Content-type: application/x-www-form-urlencoded\r\n",
-                        'method' => 'GET',
-                        'timeout' => 30,
-                    ),
-                );
-
-                // Create stream context
-                $context = stream_context_create($options);
-
-                // Send request and get response
-                $response = file_get_contents($url, false, $context);
-
-                return $response;
         }
 
         function bulk_check_lotto($day,$month,$year,$numbers){
@@ -135,7 +113,11 @@
                     $result_data = json_decode($response);
                     $output = "";
 
-                    foreach ($result_data->response->date_months as $lotto_result){
+                    // echo "<pre>";
+                    // var_dump($result_data);
+                    // echo "</pre>";
+
+                    foreach ($result_data->response->result as $lotto_result){
                         //var_dump($lotto_result);
                         $re_msg = check_reward($lotto_result);
                         $output .= "งวดวันที่ : ".$lotto_result->date;
