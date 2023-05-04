@@ -92,6 +92,7 @@
             return $response;
     
 
+
         }
         
 
@@ -109,6 +110,7 @@
               
                     //print_r($number);
                     $response = bulk_check_lotto($aday, $month, $year, $number);
+
                     
                     $result_data = json_decode($response);
                     $output = "";
@@ -189,6 +191,7 @@
                 </select>
             
             </div>
+
         
        
         <div class="lottery-forms">
@@ -222,6 +225,7 @@
 
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <script>
     async function get_datemonth(){
         let year = document.getElementById("year").value;
